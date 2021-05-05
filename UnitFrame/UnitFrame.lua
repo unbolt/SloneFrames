@@ -96,6 +96,11 @@ function UnitFrame:resizeUnit()
     self.cap_right:height(self.height)
     self.bg:width(self.width)
 
+    if self.mp_bar_bg ~= nil then
+        self.mp_bar_bg:width(self.width - 10)
+        self.mp_bar_fg:width(self.width - 10)
+    end
+
     --[[
         Update the bar widths
     ]]--
@@ -104,6 +109,9 @@ function UnitFrame:resizeUnit()
     end
 end
 
+--[[
+    Updates all the bar widths it can!
+]]--
 function UnitFrame:updateFgWidths()
 
     local i = self.unit.hpp / 100
@@ -126,6 +134,14 @@ function UnitFrame:updateFgWidths()
         self.fg:width(new_width)
     end
 
+    -- If we are running an MP bar on this unit then we'll update it as well
+    if self.mp_bar_bg ~= nil and self.player ~= nil then 
+        local m = (self.player.vitals.mp / self.player.vitals.max_mp) 
+        local mp_width = math.floor((self.width - 10) * m)
+        --print(mp_width)
+        self.mp_bar_fg:width(mp_width)
+    end
+
 end
 
 function UnitFrame:refresh()
@@ -146,6 +162,12 @@ function UnitFrame:refresh()
 
         if self.watch == 'player' then
             self.unit = windower.ffxi.get_mob_by_target('me')
+            self.player = windower.ffxi.get_player()
+
+            if self.mp_bar_text ~= nil then 
+                self.mp_bar_text.mp = comma_value(self.player.vitals.mp)
+                self.mp_bar_text.max_mp = comma_value(self.player.vitals.max_mp)
+            end
         end
 
         if self.watch == 'p1' or self.watch == 'p2' or self.watch == 'p3' or self.watch == 'p4' or self.watch == 'p5' then 
@@ -153,6 +175,7 @@ function UnitFrame:refresh()
         end
 
         if self.unit ~= nil then 
+
             self.unit_name.name = self.unit.name -- string.upper(self.unit.name)
             self.unit_hpp.hpp = self.unit.hpp
     

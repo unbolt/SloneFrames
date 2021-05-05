@@ -1,4 +1,11 @@
 function UnitFrame:updateColors()
+
+    -- MP IS YELLAH FOR ALL
+    if self.mp_bar_bg ~= nil then
+        self.mp_bar_bg:color(80,70,30)
+        self.mp_bar_fg:color(180,150,40)
+    end
+
     --Check claim_id with player and party_id
     if self.unit.spawn_type == 2 or self.unit.spawn_type == 34 then
         --npc
