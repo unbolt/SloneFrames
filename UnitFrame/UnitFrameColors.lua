@@ -44,6 +44,19 @@ function UnitFrame:updateColors()
             self.unit_hpp:color(255,255,193)
         end
     else
+
+        -- Color player and party names based on TP if we can
+        if self.player ~= nil then 
+            if self.watch == 'player' then 
+                if self.player.vitals.tp ~= nil then 
+                    self.unit_name:color(self:selectColorBasedOnTP(self.player.vitals.tp))
+                end
+            else
+                --print(self.player.tp)  
+                self.unit_name:color(self:selectColorBasedOnTP(self.player.tp))
+            end
+        end
+
         --pc
         if self.unit.in_party == true and self.unit.id ~= player_id then
             self.cap_left:color(52, 200, 200)
@@ -61,6 +74,20 @@ function UnitFrame:updateColors()
             self.fgg:color(123, 189, 205)
             self.unit_hpp:stroke_color(50,50,50,200)
             self.unit_hpp:color(255, 255, 255)
+        end
+    end
+end
+
+function UnitFrame:selectColorBasedOnTP(tp)
+    if tp ~= nil then 
+        if tp >= 0 and tp < 1000 then
+            return 255,255,255 -- white
+        elseif tp >= 1000 and tp < 2000 then 
+            return 125,180,40 -- green
+        elseif tp >= 2000 and tp < 3000 then 
+            return 180,120,40 -- orange
+        else
+            return 180,50,40 -- red
         end
     end
 end

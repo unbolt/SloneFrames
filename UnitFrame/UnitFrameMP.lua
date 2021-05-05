@@ -23,7 +23,7 @@ function UnitFrame:appendMpBarToUnit()
         self.mp_bar_text_settings.pos.x = self.pos_x + 10
         self.mp_bar_text_settings.text.size = 8
         self.mp_bar_text_settings.text.stroke.width = 1
-        self.mp_bar_text = texts.new('${mp|0}/${max_mp|0}', self.mp_bar_text_settings)
+        self.mp_bar_text = texts.new('${mp}', self.mp_bar_text_settings)
 
 
 end

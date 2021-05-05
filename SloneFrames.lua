@@ -43,7 +43,7 @@ TargetFrame:create()
 --[[ CONFIGURE PARTY MEMBER FRAMES ]]--
 -- If you change the party height it will make the spacing janky so you'll have to tweak that
 local party_start_x = 300
-local party_start_y = 500
+local party_start_y = 400
 local party_height = 55 -- this is actually the height + spacing you want, so bar height 25 + 10 spac
 
 for i = 1, 5, 1 do

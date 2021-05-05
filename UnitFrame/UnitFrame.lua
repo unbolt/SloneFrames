@@ -36,7 +36,7 @@ function UnitFrame:drawUnit()
     self.unit_hpp_settings = table.copy(unitframe_text_defaults)
     self.unit_hpp_settings.pos.y = self.pos_y + ((self.height - self.unit_name_settings.text.size) / 2) - 2 -- old: hpp below the unit - self.pos_y + self.height + 2
     self.unit_hpp_settings.pos.x = self.pos_x + self.width - 50 -- 50 is a guess, seems to work fine
-    self.unit_hpp = texts.new('${hpp|0}%', self.unit_hpp_settings)
+    self.unit_hpp = texts.new('${hpp|0}', self.unit_hpp_settings)
 
     -- Draw the bar elements
     -- Bar BG
@@ -81,7 +81,14 @@ function UnitFrame:drawUnit()
 end
 
 function UnitFrame:appendPlayerAdditionalData()
-    if self.watch == 'player' then 
+    if 
+        self.watch == 'player' 
+        or self.watch == 'p1'
+        or self.watch == 'p2'
+        or self.watch == 'p3'
+        or self.watch == 'p4'
+        or self.watch == 'p5'
+    then 
         self:appendMpBarToUnit()
     end
 end
@@ -136,9 +143,9 @@ function UnitFrame:updateFgWidths()
 
     -- If we are running an MP bar on this unit then we'll update it as well
     if self.mp_bar_bg ~= nil and self.player ~= nil then 
-        local m = (self.player.vitals.mp / self.player.vitals.max_mp) 
+        local m = self.player.mpp / 100
         local mp_width = math.floor((self.width - 10) * m)
-        --print(mp_width)
+
         self.mp_bar_fg:width(mp_width)
     end
 
@@ -152,33 +159,69 @@ function UnitFrame:refresh()
 
         -- Refresh the unit information
         if self.watch == 'target' then
-            
+
             if self.unit ~= nil then
                 self.old_unit = self.unit
             end
 
             self.unit = windower.ffxi.get_mob_by_target('t')
+
+            if self.unit ~= nil then 
+                self.unit_name.name = self.unit.name -- string.upper(self.unit.name)
+                self.unit_hpp.hpp = self.unit.hpp .. '%'
+            end
         end
 
         if self.watch == 'player' then
+
             self.unit = windower.ffxi.get_mob_by_target('me')
             self.player = windower.ffxi.get_player()
 
-            if self.mp_bar_text ~= nil then 
-                self.mp_bar_text.mp = comma_value(self.player.vitals.mp)
-                self.mp_bar_text.max_mp = comma_value(self.player.vitals.max_mp)
+            if self.unit ~= nil then 
+
+                -- Update Names
+                self.unit_name.name = self.unit.name -- .. ' ' .. self.player.main_job_level .. self.player.main_job
+                self.unit_hpp.hpp = comma_value(self.player.vitals.hp)
+
+                if self.player.vitals.tp ~= 0 then
+                    self.unit_name.name = self.unit.name .. ' [' .. self.player.vitals.tp / 10 .. '%]'
+                end
+
+                -- Update MP
+                -- Add an mpp value to our player 
+                self.player.mpp = self.player.vitals.mp / self.player.vitals.max_mp * 100
+
+                if self.mp_bar_text ~= nil then 
+                    self.mp_bar_text.mp = comma_value(self.player.vitals.mp) .. '/' .. comma_value(self.player.vitals.max_mp)
+                end
+
             end
         end
 
         if self.watch == 'p1' or self.watch == 'p2' or self.watch == 'p3' or self.watch == 'p4' or self.watch == 'p5' then 
+
+            local party = windower.ffxi.get_party()
             self.unit = windower.ffxi.get_mob_by_target(self.watch)
+            self.player = party[self.watch]
+
+            if self.unit ~= nil then 
+                -- Update Names
+                self.unit_name.name = self.unit.name 
+
+                if self.player.tp ~= 0 then
+                    self.unit_name.name = self.unit.name .. ' [' .. self.player.tp / 10 .. '%]'
+                end
+                --self.unit_hpp.hpp = self.unit.hpp
+                
+                if self.player ~= nil and self.mp_bar_text ~= nil then
+                    self.mp_bar_text.mp = comma_value(self.player.mp) -- .. '%'
+                end
+            end
+
+
         end
 
-        if self.unit ~= nil then 
-
-            self.unit_name.name = self.unit.name -- string.upper(self.unit.name)
-            self.unit_hpp.hpp = self.unit.hpp
-    
+        if self.unit ~= nil then     
             self:updateColors()
             self:resizeUnit()
             self:show()
